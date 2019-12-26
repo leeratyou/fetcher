@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "es2016",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": true,
+    "lib": [
+      "es2019",
+      "dom"
+    ]
+  },
+  "exclude": [
+    "lib",
+    "node_modules"
+  ],
+  "include": [
+    "src"
+  ]
+}

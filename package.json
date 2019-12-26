@@ -1,0 +1,46 @@
+{
+  "name": "@supersimplethings/fetchme",
+  "version": "0.0.5",
+  "private": false,
+  "description": "Polite fetch library",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:check": "tsc --noEmit",
+    "deploy": "npm run deploy:patch",
+    "deploy:patch": "tsc && npm version patch && npm publish",
+    "deploy:minor": "tsc && npm version minor && npm publish",
+    "deploy:major": "tsc && npm version major && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leeratyou/fetchme.git"
+  },
+  "keywords": [
+    "fetchme",
+    "fetch",
+    "SuperSimpleThings"
+  ],
+  "author": {
+    "name": "Boris Veligorya",
+    "email": "boris.veligorya@gmail.com",
+    "url": "https://supersimplethings.com",
+    "github": "@leeratyou"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/leeratyou/fetchme/issues"
+  },
+  "homepage": "https://github.com/leeratyou/fetchme/issues#readme",
+  "files": [
+    "lib",
+    "src",
+    "*.md"
+  ],
+  "devDependencies": {
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "deepmerge": "^4.2.2"
+  }
+}
