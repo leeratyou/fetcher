@@ -1,5 +1,7 @@
 import merge from 'deepmerge'
 
+const pipe = (...fns: any[]) => (value: any) => fns.reduce((prevValue, currentFn) => currentFn(prevValue), value)
+
 enum Method {
   GET = 'GET',
   POST = 'POST',
@@ -26,6 +28,11 @@ interface Api extends Dictionary<any> {
 
 type Dictionary<T> = { [key: string]: T }
 
+enum MiddlewareTarget {
+  response = 'response',
+  body = 'body'
+}
+
 // TODO Under construction
 type ValidateShape<T, Shape> = T extends Shape
   ? Exclude<keyof T, keyof Shape> extends never
@@ -49,13 +56,20 @@ function isApiDict(input: any): input is Dictionary<Api> {
   if (typeof input !== 'object' || Array.isArray(input)) return false
   
   // TODO Under construction
-  if (typeof input === 'object') return <boolean>Object.values(input).find((item: any) => !isApi(item))
+  if (typeof input === 'object') return !<boolean>Object.values(input).find((item: any) => !isApi(item))
   
   return false
 }
 
 function isFullUrl(input: string): boolean {
   return /^http/.test(input)
+}
+
+const convert = (converter: Function) => (input: any): any => {
+  if (Array.isArray(input)) return input.map(item => convert(converter)(item))
+  if (typeof input === 'object') return Object.entries(input)
+    .reduce((obj, [key, value]) => ({ ...obj, [converter(key)]: convert(converter)(value) }), {})
+  return input
 }
 
 class Fetchme {
@@ -65,7 +79,7 @@ class Fetchme {
     if (apis) this.setApis(apis)
   }
   
-  setApis(apis: Api | Dictionary<Api>) {
+  private setApis(apis: Api | Dictionary<Api>) {
     // TODO Under construction
     if (isApi(apis)) {
       this.apis = {...this.apis, [apis.name]: apis}
@@ -84,11 +98,16 @@ class Fetchme {
     }
   }
   
+  middlewares = {
+    body: [],
+    response: []
+  }
+  
   domain: string = ''
   endpoint: string = ''
   query: string = ''
   
-  fetch(url: string, options: any) {
+  private fetch(url: string, options: any) {
     return new Promise((resolve, reject) => {
       fetch(url, options)
         .then((response: Response) => {
@@ -96,7 +115,11 @@ class Fetchme {
           return response.json()
         })
         .then((json: unknown) => {
-          resolve(json)
+          if (this.middlewares.response.length > 0) {
+            resolve(pipe(...this.middlewares.response)(json))
+          } else {
+            resolve(json)
+          }
         })
         .catch((e: any) => {
           reject(error(e))
@@ -105,7 +128,7 @@ class Fetchme {
   }
   
   // TODO Make mapper use this.apis
-  mapper(url: string) {
+  private mapper(url: string) {
     const parsed = new URL(url)
     this.domain = parsed.origin
     this.endpoint = parsed.pathname
@@ -148,15 +171,23 @@ class Fetchme {
     return this
   }
   
+  private setBody(body: Dictionary<any>) {
+    if (this.middlewares.body.length > 0) {
+      this.options.body = pipe(this.middlewares.body)(body)
+    } else {
+      this.options.body = body
+    }
+  }
+  
   post(body: Dictionary<any>) {
     this.options.method = Method.POST
-    this.options.body = body
+    this.setBody(body)
     return this
   }
   
   put(body: Dictionary<any>) {
     this.options.method = Method.PUT
-    this.options.body = body
+    this.setBody(body)
     return this
   }
   
@@ -174,7 +205,12 @@ class Fetchme {
   }
   
   with(options: Options) {
-    this.options = merge(this.options, options)
+    if (options) this.options = merge(this.options, options)
+    return this
+  }
+  
+  addMiddleware(to: MiddlewareTarget, middleware: any | any[]) {
+    this.middlewares[to] = middleware.length > 1 ? middleware : [middleware]
     return this
   }
   
