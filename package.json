@@ -1,6 +1,6 @@
 {
   "name": "@supersimplethings/fetchme",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": false,
   "description": "Polite fetch library",
   "main": "lib/index.js",
@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/leeratyou/fetchme/issues"
   },
-  "homepage": "https://github.com/leeratyou/fetchme/issues#readme",
+  "homepage": "https://github.com/leeratyou/fetchme#readme",
   "files": [
     "lib",
     "src",
