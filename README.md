@@ -8,14 +8,12 @@ Polite fetch library.
 ## Usage
 
 ```javascript
-import fetchme from '@supersimplethings/fetchme'
-
 async function getResponse(someArgs) {
   const body = {
     some: someArgs.some,
     args: someArgs.args
   }
-  const response = await fetchme().post(body).
+  const response = await fetchme().post(body).to('https://some.site/endpoint').plz()
 }
 ```
 
@@ -24,39 +22,90 @@ async function getResponse(someArgs) {
 With [npm](https://npmjs.org/):
 
 ```shell
-npm install @supersimplethings/resize-image-in-browser
+npm install @supersimplethings/fetchme
 ```
 
 With [yarn](https://yarnpkg.com/en/):
 
 ```shell
-yarn add @supersimplethings/resize-image-in-browser
+yarn add @supersimplethings/fetchme
 ```
 
 ## API
 
 ```typescript
-type Resize = (file: File, options?: Options) => Promise<dataURL|Blob|File>
+enum Method {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE'
+}
+
+enum MiddlewareTarget {
+  response = 'response',
+  body = 'body'
+}
+
+interface Api {
+  name: string
+  domain: string
+  endpoints: object
+}
 
 interface Options {
-  maxWidth?: number   (1024) // in pixels // Aspect ratio will be saved
-  maxHeight?: number  (768) // in pixels  // Smaller one dimension would be applied
-  output?: Output     (jpeg)
-  format?: Format     (dataURL)
-  quality?: number    (1.0) // from 0.1 to 1.0 (only 'jpeg')
+  // TODO Under construction (of all Request options)
+  headers?: object
 }
 
-enum Format {
-  png = 'png',
-  jpeg = 'jpeg',
-  webp = 'webp',
-  bmp = 'bmp'
+interface Result {
+  success: boolean
+  data: any
 }
 
-enum Output {
-  dataURL = 'dataURL',
-  File = 'File',
-  Blob = 'Blob'
+interface Success extends Result {
+  success: true
+  data: any
+}
+
+interface Error extends Result {
+  success: false
+  data: any
+}
+
+interface Fetchme {
+  constructor(Api)
+
+  get(query?: object): this
+  post(body: object): this
+  put(body: object): this
+  delete(): this
+
+  from(urlOrEndpoint: string): this
+  to(urlOrEndpoint: string): this
+
+  with(options: Options): this
+  addMiddleware(to: MiddlewareTarget, middleware: Function | Function[]): this
+
+  plz(): Promise<Success|Error>
+}
+```
+
+## Advanced usage
+
+```javascript
+
+const ourApi = {
+  name: 'ourApi',
+  domain: 'https://some.domain',
+  endpoints: {
+    
+  }
+}
+
+class TransportLayer {
+  constructor() {
+    const fetchme = 
+  }
 }
 ```
 

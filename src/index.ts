@@ -20,6 +20,11 @@ const error = (e: string | object) => ({
   data: e
 })
 
+const success = (s: any) => ({
+  success: true,
+  data: s
+})
+
 interface Api extends Dictionary<any> {
   name: string
   domain: string
@@ -116,9 +121,9 @@ class Fetchme {
         })
         .then((json: unknown) => {
           if (this.middlewares.response.length > 0) {
-            resolve(pipe(...this.middlewares.response)(json))
+            resolve(success(pipe(...this.middlewares.response)(json)))
           } else {
-            resolve(json)
+            resolve(success(json))
           }
         })
         .catch((e: any) => {
@@ -210,7 +215,8 @@ class Fetchme {
   }
   
   addMiddleware(to: MiddlewareTarget, middleware: any | any[]) {
-    this.middlewares[to] = middleware.length > 1 ? middleware : [middleware]
+    // TODO Enum type guard of 'to'
+    this.middlewares[to] = middleware.length > 0 ? middleware : [middleware]
     return this
   }
   
