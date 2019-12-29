@@ -1,3 +1,5 @@
+import { Fetchme } from './index'
+
 export type Dictionary<T> = { [key: string]: T }
 
 export type Partial<T> = { [P in keyof T]?: T[P] }
@@ -109,9 +111,6 @@ export function isFullUrl(input: unknown): input is string {
   return typeof input === 'string' && /^http/.test(input)
 }
 
-export const convert = (converter: Function) => (input: any): any => {
-  if (Array.isArray(input)) return input.map(item => convert(converter)(item))
-  if (typeof input === 'object') return Object.entries(input)
-    .reduce((obj, [key, value]) => ({...obj, [converter(key)]: convert(converter)(value)}), {})
-  return input
+export function isFetchme(input: any): input is Fetchme {
+  return input instanceof Fetchme
 }

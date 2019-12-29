@@ -5,7 +5,7 @@ import {
   Dictionary,
   EndpointsDictionary,
   error,
-  isApi,
+  isApi, isFetchme,
   isFullUrl,
   Method,
   Middleware,
@@ -21,7 +21,7 @@ interface Fetchme {
   new(apis?: Api | Dictionary<Api>): Fetchme
 }
 
-class Fetchme implements Fetchme{
+class Fetchme implements Fetchme {
   
   constructor(apis?: Api | Dictionary<Api>) {
     // TODO Under construction
@@ -207,9 +207,12 @@ class Fetchme implements Fetchme{
 
 class Repository {
   
-  constructor(apis: Dictionary<Api>, fetcher: Fetchme) {
-    this.fetcher = new fetcher(apis)
+  constructor(apis: Dictionary<Api>, fetcher: Fetchme | any) {
+    this.apis = apis
+    this.fetcher = isFetchme(fetcher) ? new Fetchme(apis) : fetcher
   }
+  
+  private apis: Dictionary<Api>
   
   private fetcher: Fetchme
 }
