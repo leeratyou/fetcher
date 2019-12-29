@@ -15,7 +15,7 @@ import {
   StringFactory,
   success
 } from "./utils";
-import { statusNotOk, stringify, takeJson } from "./middleware";
+import { statusNotOk, stringify, takeJson, keyConvert } from "./middleware";
 
 interface Fetchme {
   new(apis?: Api | Dictionary<Api>): Fetchme
@@ -219,7 +219,8 @@ class Repository {
 
 export {
   Fetchme,
-  Repository
+  Repository,
+  keyConvert
 }
 
 export default FetchmeFactory
