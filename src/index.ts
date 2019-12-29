@@ -56,8 +56,9 @@ class Fetchme implements Fetchme {
     if (!this._body) return {}
     const temp = this._body
     this._body = undefined
-    return { body: temp }
+    return {body: temp}
   }
+  
   set body(newValue) {
     this._body = pipe(...this.middleware.body)(newValue)
   }
@@ -70,6 +71,7 @@ class Fetchme implements Fetchme {
     reject: []
   }
   
+  currentApi: string | undefined = undefined
   domain: string | undefined = undefined
   endpoint: string | StringFactory | undefined = undefined
   query: string = ''
@@ -114,14 +116,18 @@ class Fetchme implements Fetchme {
     this.endpoint = parsed.pathname
   }
   
-  private mapper = (api: string | number | undefined): any => {
+  private mapper = (api: string | undefined): any => {
     if (isFullUrl(api)) {
       this.parser(api)
       return this
     }
-    if (!this.domain && !api) throw error(SHOULD_DEFINE_API)
-    this.domain = this.apis?.[api!]?.domain || this.domain
-    return this.endpointsFactory(this.apis?.endpoints)
+    if (!api && !this.currentApi) throw error(SHOULD_DEFINE_API)
+    const apiToUse = this.currentApi || api
+    this.currentApi = apiToUse
+    this.domain = this.apis?.[apiToUse!].domain
+    const endpoints = this.apis?.[apiToUse!].endpoints
+    
+    return this.endpointsFactory(endpoints)
   }
   
   /* PUBLIC METHODS */
