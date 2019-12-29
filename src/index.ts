@@ -1,81 +1,21 @@
 import merge from 'deepmerge'
-
-const pipe = (...fns: any[]) => (value: any) => fns.reduce((prevValue, currentFn) => currentFn(prevValue), value)
-
-enum Method {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE'
-}
-
-interface Options {
-  method: Method,
-  body?: any,
-  headers?: Dictionary<string>
-}
-
-const error = (e: string | object) => ({
-  success: false,
-  data: e
-})
-
-const success = (s: any) => ({
-  success: true,
-  data: s
-})
-
-interface Api extends Dictionary<any> {
-  name: string
-  domain: string
-  endpoints: object
-}
-
-type Dictionary<T> = { [key: string]: T }
-
-enum MiddlewareTarget {
-  response = 'response',
-  body = 'body'
-}
-
-// TODO Under construction
-type ValidateShape<T, Shape> = T extends Shape
-  ? Exclude<keyof T, keyof Shape> extends never
-    ? T
-    : never
-  : never
-
-declare function setApis<T>(apis: ValidateShape<T, Api>): void
-
-// TODO Under construction
-// function isType<T>(input: any): input is T {
-//
-// }
-
-// FIXME Fast but ugly
-function isApi(input: any): input is Api {
-  return (input.name && input.domain && input.endpoints)
-}
-
-function isApiDict(input: any): input is Dictionary<Api> {
-  if (typeof input !== 'object' || Array.isArray(input)) return false
-  
-  // TODO Under construction
-  if (typeof input === 'object') return !<boolean>Object.values(input).find((item: any) => !isApi(item))
-  
-  return false
-}
-
-function isFullUrl(input: string): boolean {
-  return /^http/.test(input)
-}
-
-const convert = (converter: Function) => (input: any): any => {
-  if (Array.isArray(input)) return input.map(item => convert(converter)(item))
-  if (typeof input === 'object') return Object.entries(input)
-    .reduce((obj, [key, value]) => ({ ...obj, [converter(key)]: convert(converter)(value) }), {})
-  return input
-}
+import { HAS_SYMBOL, NO_DOMAIN, NO_ENDPOINT, SHOULD_DEFINE_API } from './strings'
+import {
+  Api,
+  Dictionary,
+  EndpointsDictionary,
+  error,
+  isApi,
+  isFullUrl,
+  Method,
+  Middleware,
+  MiddlewareTarget,
+  Options,
+  pipe,
+  StringFactory,
+  success
+} from "./utils";
+import { statusNotOk, stringify, takeJson } from "./middleware";
 
 class Fetchme {
   constructor(apis?: Api | Dictionary<Api>) {
@@ -103,96 +43,106 @@ class Fetchme {
     }
   }
   
-  middlewares = {
-    body: [],
-    response: []
+  // Make body resetable after calling
+  // TODO Check proper body resetability (should write test?) and if dont work - need 'reset' method
+  private _body: Dictionary<any> | FormData | undefined = undefined
+  
+  get body() {
+    if (!this._body) return {}
+    const temp = this._body
+    this._body = undefined
+    return { body: temp }
+  }
+  set body(newValue) {
+    this._body = pipe(...this.middleware.body)(newValue)
   }
   
-  domain: string = ''
-  endpoint: string = ''
+  middleware: Middleware = {
+    body: [stringify],
+    response: [statusNotOk, takeJson],
+    resolve: [],
+    reject: []
+  }
+  
+  domain: string | undefined = undefined
+  endpoint: string | StringFactory | undefined = undefined
   query: string = ''
+  arguments: Array<string | number> = []
   
   private fetch(url: string, options: any) {
     return new Promise((resolve, reject) => {
       fetch(url, options)
         .then((response: Response) => {
-          if (!response.ok) throw ({ status: response.status, statusText: response.statusText })
-          return response.json()
+          return pipe(...this.middleware.response)(response)
         })
         .then((json: unknown) => {
-          if (this.middlewares.response.length > 0) {
-            resolve(success(pipe(...this.middlewares.response)(json)))
-          } else {
-            resolve(success(json))
-          }
+          resolve(success(pipe(...this.middleware.resolve)(json)))
         })
         .catch((e: any) => {
-          reject(error(e))
+          reject(error(pipe(...this.middleware.reject)(e)))
         })
     })
   }
   
-  // TODO Make mapper use this.apis
-  private mapper(url: string) {
+  private endpointsFactory = (endpoints?: EndpointsDictionary): Fetchme | EndpointsDictionary => {
+    if (!endpoints) throw error(NO_ENDPOINT)
+    const that = this
+    
+    return new Proxy(endpoints, {
+      get(target, prop) {
+        if (typeof prop === 'symbol') throw error(HAS_SYMBOL)
+        if (!target[prop]) throw error(NO_ENDPOINT)
+        
+        if (typeof target[prop] === 'function') {
+          that.endpoint = target[prop] as StringFactory
+          return that
+        }
+        if (typeof target[prop] === 'object') return that.endpointsFactory(target[prop] as EndpointsDictionary)
+      }
+    })
+  }
+  
+  private parser(url: string) {
     const parsed = new URL(url)
     this.domain = parsed.origin
     this.endpoint = parsed.pathname
   }
   
-  // TODO Always pass through mapper
-  from(endpoint: string) {
-    if (isFullUrl(endpoint)) {
-      this.mapper(endpoint)
-    } else {
-      this.endpoint = endpoint
+  private mapper = (api: string | number | undefined): any => {
+    if (isFullUrl(api)) {
+      this.parser(api)
+      return this
     }
-    return this
+    if (!this.domain && !api) throw error(SHOULD_DEFINE_API)
+    this.domain = this.apis?.[api!]?.domain || this.domain
+    return this.endpointsFactory(this.apis?.endpoints)
   }
   
-  // TODO Always pass through mapper
-  to(endpoint: string) {
-    if (isFullUrl(endpoint)) {
-      this.mapper(endpoint)
-    } else {
-      this.endpoint = endpoint
-    }
-    return this
+  /* PUBLIC METHODS */
+  
+  from(api?: any) {
+    return this.mapper(api)
   }
   
-  plz() {
-    if (this.domain === '') return Promise.reject(error('Sorry, but i can\'t fetch from nowhere'))
-    if (this.endpoint === '') return Promise.reject(error('Sorry, but there isn\'t such endpoint'))
-  
-    // TODO When mapper will be workable - use this
-    // if (!this.apis?.endpoints[this.endpoint]) return Promise.reject(error('Sorry, but there isn\'t such endpoint'))
-    
-    const url = `${this.domain}${this.endpoint}${this.query}`
-    return this.fetch(url, this.options)
+  to(api?: any) {
+    return this.mapper(api)
   }
   
-  get(query?: Dictionary<string>) {
-    this.query = query ? Object.keys(query).reduce((str, curr) => `${str}${curr}=${query[curr]}&`, '?') : ''
+  get(query: Dictionary<any>) {
+    this.query = Object.keys(query).reduce((str, curr) => `${str}${curr}=${query[curr]}&`, '?')
     this.options.method = Method.GET
     return this
   }
   
-  private setBody(body: Dictionary<any>) {
-    if (this.middlewares.body.length > 0) {
-      this.options.body = pipe(this.middlewares.body)(body)
-    } else {
-      this.options.body = body
-    }
-  }
-  
   post(body: Dictionary<any>) {
     this.options.method = Method.POST
-    this.setBody(body)
+    this.body = body
     return this
   }
   
   put(body: Dictionary<any>) {
     this.options.method = Method.PUT
-    this.setBody(body)
+    this.body = body
     return this
   }
   
@@ -205,19 +155,45 @@ class Fetchme {
     const formData = new FormData()
     formData.append('file', file)
     this.options.method = Method.POST
-    this.options.body = formData
+    // @ts-ignore
+    this.body = formData
     return this
   }
   
-  with(options: Options) {
-    if (options) this.options = merge(this.options, options)
+  with(...args: Array<string | number>) {
+    this.arguments = args
     return this
   }
   
-  addMiddleware(to: MiddlewareTarget, middleware: any | any[]) {
+  setOptions(options: Options) {
+    this.options = merge(this.options, options)
+    return this
+  }
+  
+  setApi(to: string) {
+    this.mapper(to)
+    return this
+  }
+  
+  addMiddleware(to: MiddlewareTarget, ...middleware: any[]) {
     // TODO Enum type guard of 'to'
-    this.middlewares[to] = middleware.length > 0 ? middleware : [middleware]
+    this.middleware[to].push(...middleware)
     return this
+  }
+  
+  plz() {
+    if (!this.domain) return Promise.reject(error(NO_DOMAIN))
+    if (!this.endpoint) return Promise.reject(error(NO_ENDPOINT))
+    
+    const options = {
+      ...this.options,
+      ...this.body
+    }
+    const endpoint = typeof this.endpoint === 'function' ? this.endpoint(...this.arguments) : this.endpoint
+    const query = this.query.replace(/&$/, '')
+    const url = `${this.domain}${endpoint}${query}`.replace(/([^:]\/)\/+/g, '$1')
+    
+    return this.fetch(url, options)
   }
   
 }
@@ -227,7 +203,7 @@ function FetchmeFactory(api?: Api) {
   // TODO Need to be able pass string as well
   let persistApis: Dictionary<any> = {}
   // TODO validate api shape
-  if (api) persistApis = { ...persistApis, [api.name]: api }
+  if (api) persistApis = {...persistApis, [api.name]: api}
   return new Fetchme(persistApis)
 }
 

@@ -1,13 +1,15 @@
 {
   "name": "@supersimplethings/fetchme",
-  "version": "0.0.10",
+  "version": "0.9.1",
   "private": false,
   "description": "Polite fetch library",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
     "build:check": "tsc --noEmit",
+    "preversion": "npm test",
     "deploy": "npm run deploy:patch",
+    "deploy:rc": "tsc && npm version prerelease && npm publish --access public",
     "deploy:patch": "tsc && npm version patch && npm publish --access public",
     "deploy:minor": "tsc && npm version minor && npm publish --access public",
     "deploy:major": "tsc && npm version major && npm publish --access public"

@@ -93,20 +93,30 @@ interface Fetchme {
 ## Advanced usage
 
 ```javascript
-
 const ourApi = {
   name: 'ourApi',
   domain: 'https://some.domain',
   endpoints: {
-    
+    userById: userId => `/users/${userId}`
   }
 }
 
-class TransportLayer {
-  constructor() {
-    const fetchme = 
+const token = 'some_token'
+
+class Repository {
+  constructor(apis) {
+    const fetchme = new Fetchme(apis)
+    fetchme.with({ headers: { Authorization: `Bearer ${token}` }})
+    this.fetchme = fetchme
   }
+
+  getUserById = async id => {
+    const user = await this.fetchme
+  }
+
 }
+
+const repository = new Repository(ourApi)
 ```
 
 ## License
