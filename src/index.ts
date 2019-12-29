@@ -223,4 +223,4 @@ export {
   keyConvert
 }
 
-export default FetchmeFactory
+export default Fetchme
