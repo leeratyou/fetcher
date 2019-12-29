@@ -134,8 +134,8 @@ class Fetchme implements Fetchme {
     return this.mapper(api)
   }
   
-  get(query: Dictionary<any>) {
-    this.query = Object.keys(query).reduce((str, curr) => `${str}${curr}=${query[curr]}&`, '?')
+  get(query?: Dictionary<any>) {
+    this.query = query ? Object.keys(query).reduce((str, curr) => `${str}${curr}=${query[curr]}&`, '?') : ''
     this.options.method = Method.GET
     return this
   }
