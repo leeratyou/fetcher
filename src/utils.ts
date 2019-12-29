@@ -115,5 +115,3 @@ export const convert = (converter: Function) => (input: any): any => {
     .reduce((obj, [key, value]) => ({...obj, [converter(key)]: convert(converter)(value)}), {})
   return input
 }
-
-

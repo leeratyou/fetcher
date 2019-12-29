@@ -17,7 +17,12 @@ import {
 } from "./utils";
 import { statusNotOk, stringify, takeJson } from "./middleware";
 
-class Fetchme {
+interface Fetchme {
+  new(apis?: Api | Dictionary<Api>): Fetchme
+}
+
+class Fetchme implements Fetchme{
+  
   constructor(apis?: Api | Dictionary<Api>) {
     // TODO Under construction
     // TODO Need to be able pass string as well
@@ -57,6 +62,7 @@ class Fetchme {
     this._body = pipe(...this.middleware.body)(newValue)
   }
   
+  // TODO Need way to define pipe or compose
   middleware: Middleware = {
     body: [stringify],
     response: [statusNotOk, takeJson],
@@ -175,6 +181,7 @@ class Fetchme {
     return this
   }
   
+  // FIXME Shouldnt be push here
   addMiddleware(to: MiddlewareTarget, ...middleware: any[]) {
     // TODO Enum type guard of 'to'
     this.middleware[to].push(...middleware)
@@ -198,18 +205,18 @@ class Fetchme {
   
 }
 
-function FetchmeFactory(api?: Api) {
-  // TODO Under construction
-  // TODO Need to be able pass string as well
-  let persistApis: Dictionary<any> = {}
-  // TODO validate api shape
-  if (api) persistApis = {...persistApis, [api.name]: api}
-  return new Fetchme(persistApis)
+class Repository {
+  
+  constructor(apis: Dictionary<Api>, fetcher: Fetchme) {
+    this.fetcher = new fetcher(apis)
+  }
+  
+  private fetcher: Fetchme
 }
 
 export {
   Fetchme,
-  FetchmeFactory
+  Repository
 }
 
 export default FetchmeFactory
