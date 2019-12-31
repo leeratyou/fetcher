@@ -87,7 +87,7 @@ class Fetchme implements Fetchme {
           resolve(success(pipe(...this.middleware.resolve)(json)))
         })
         .catch((e: any) => {
-          reject(error(pipe(...this.middleware.reject)(e)))
+          resolve(error(pipe(...this.middleware.reject)(e)))
         })
     })
   }
