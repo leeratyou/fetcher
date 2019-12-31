@@ -67,8 +67,8 @@ class Fetchme implements Fetchme {
   middleware: Middleware = {
     body: [stringify],
     response: [statusNotOk, takeJson],
-    resolve: [],
-    reject: []
+    resolve: [success],
+    reject: [error],
   }
   
   currentApi: string | undefined = undefined
@@ -84,10 +84,10 @@ class Fetchme implements Fetchme {
           return pipe(...this.middleware.response)(response)
         })
         .then((json: unknown) => {
-          resolve(success(pipe(...this.middleware.resolve)(json)))
+          resolve(pipe(...this.middleware.resolve)(json))
         })
         .catch((e: any) => {
-          resolve(error(pipe(...this.middleware.reject)(e)))
+          resolve(pipe(...this.middleware.reject)(e))
         })
     })
   }
