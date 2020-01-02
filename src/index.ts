@@ -182,7 +182,7 @@ class Fetchme implements Fetchme {
     return this
   }
   
-  setApi(to: string) {
+  useApi(to: string) {
     this.mapper(to)
     return this
   }
