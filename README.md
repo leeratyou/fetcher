@@ -31,65 +31,6 @@ With [yarn](https://yarnpkg.com/en/):
 yarn add @supersimplethings/fetchme
 ```
 
-## API
-
-```typescript
-enum Method {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE'
-}
-
-enum MiddlewareTarget {
-  response = 'response',
-  body = 'body'
-}
-
-interface Api {
-  name: string
-  domain: string
-  endpoints: object
-}
-
-interface Options {
-  // TODO Under construction (of all Request options)
-  headers?: object
-}
-
-interface Result {
-  success: boolean
-  data: any
-}
-
-interface Success extends Result {
-  success: true
-  data: any
-}
-
-interface Error extends Result {
-  success: false
-  data: any
-}
-
-interface Fetchme {
-  constructor(Api)
-
-  get(query?: object): this
-  post(body: object): this
-  put(body: object): this
-  delete(): this
-
-  from(urlOrEndpoint: string): this
-  to(urlOrEndpoint: string): this
-
-  with(options: Options): this
-  addMiddleware(to: MiddlewareTarget, middleware: Function | Function[]): this
-
-  plz(): Promise<Success|Error>
-}
-```
-
 ## Advanced usage
 
 ```javascript
@@ -103,20 +44,59 @@ const ourApi = {
 
 const token = 'some_token'
 
-class Repository {
-  constructor(apis) {
-    const fetchme = new Fetchme(apis)
-    fetchme.with({ headers: { Authorization: `Bearer ${token}` }})
-    this.fetchme = fetchme
-  }
+const fetchme = new Fetchme(ourApi)
+  .setOptions({ headers: { Authorization: `Bearer: ${token}` }})
+  .addMiddleware('body', someBodyParser)
 
-  getUserById = async id => {
-    const user = await this.fetchme
+async function updateUser(someArgs, userId) {
+  const body = {
+    some: someArgs.some,
+    args: someArgs.args
   }
-
+  const user = await fetchme.put(body).to('ourApi').userById.with(userId).plz()
 }
 
-const repository = new Repository(ourApi)
+```
+
+## Repository pattern
+```javascript
+import { Fetchme, Repository } from '@supersimplethings/fetchme'
+
+class UsersRepository extends Repository {
+  constructor(apis, Fetcher) {
+    super(apis, Fetcher)
+
+    this.apis = apis
+    this.fetcher = new Fetcher(apis)
+      .setOptions({ headers: { Authorization: `Bearer: ${token}` }})
+      .addMiddleware('body', someBodyParser)
+  }
+
+  async createUser(someArgs) {
+    const body = {
+      some: someArgs.some,
+      args: someArgs.args
+    }
+    const response = await this.fetcher.post(body).to().user.create.plz()
+
+    if (!response.success) return []
+    const newUser = someParse(response.data)
+    return newUser
+  }
+}
+
+const ourApi = {
+  name: 'ourApi',
+  domain: 'https://some.domain',
+  endpoints: {
+    user: {
+      create: () => '/users'
+    }
+  }
+}
+
+const usersRepository = new UsersRepository(ourApi, Fetchme)
+
 ```
 
 ## License
