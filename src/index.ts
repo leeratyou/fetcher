@@ -59,16 +59,17 @@ class Fetchme implements Fetchme {
   private _body: Dictionary<any> | FormData | undefined = undefined
   
   get body() {
+    if (this.debug) console.log('--- index.ts -> get body -> this._body', this._body)
     if (!this._body) return {}
     const temp = this._body
     this._body = undefined
-    return {body: temp}
+    return { body: temp }
   }
   
   set body(newValue) {
-    if (this.debug) console.log('--- index.ts -> body -> newValue', newValue)
+    if (this.debug) console.log('--- index.ts -> set body -> newValue', newValue)
     this._body = pipe(...this.middleware.body)(newValue)
-    if (this.debug) console.log('--- index.ts -> body -> after pipe', this._body)
+    if (this.debug) console.log('--- index.ts -> set body -> after pipe', this._body)
   }
   
   // TODO Need way to define pipe or compose
@@ -208,8 +209,9 @@ class Fetchme implements Fetchme {
     
     const options = {
       ...this.options,
-      body: this.body
+      ...this.body
     }
+    if (this.debug) console.log('--- index.ts -> plz -> options', options)
     const endpoint = typeof this.endpoint === 'function' ? this.endpoint(...this.arguments) : this.endpoint
     const query = this.query.replace(/&$/, '')
     const url = `${this.domain}${endpoint}${query}`.replace(/([^:]\/)\/+/g, '$1')
