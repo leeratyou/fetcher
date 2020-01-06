@@ -15,7 +15,7 @@ import {
   StringFactory,
   success
 } from "./utils";
-import { statusNotOk, stringify, takeJson, keyConvert } from "./middleware";
+import { statusNotOk, stringify, takeJson, keyConvert, toFormData } from "./middleware";
 
 interface Fetchme {
   new(apis?: Api | Dictionary<Api>): Fetchme
@@ -78,7 +78,7 @@ class Fetchme implements Fetchme {
   arguments: Array<string | number> = []
   
   private fetch(url: string, options: any) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       fetch(url, options)
         .then((response: Response) => {
           return pipe(...this.middleware.response)(response)
@@ -164,18 +164,11 @@ class Fetchme implements Fetchme {
   }
   
   upload(input: File | Dictionary<any>) {
-    const formData = new FormData()
-    if (input instanceof File) {
-      formData.append('file', input)
-    } else {
-      Object.entries(input).forEach(([key, value]) => {
-        formData.append(key, value)
-      })
-    }
     this.options.headers = {}
     this.options.method = Method.POST
+    this.middleware.body = [toFormData]
     // @ts-ignore
-    this.body = formData
+    this.body = input
     return this
   }
   

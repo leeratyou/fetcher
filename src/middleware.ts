@@ -1,5 +1,5 @@
 import { NOT_VALID_JSON, NO_RESPONSE } from "./strings";
-import { error } from "./utils";
+import { Dictionary, error } from "./utils";
 
 export function statusNotOk(response: Response) {
   if (!response.ok) throw error({status: response.status, statusText: response.statusText})
@@ -13,6 +13,19 @@ export function stringify(input: object) {
   } catch {
     throw error(NOT_VALID_JSON)
   }
+}
+
+export function toFormData(input: File | Dictionary<any>): FormData {
+  const formData = new FormData()
+  
+  if (input instanceof File) {
+    formData.append(input.name || 'file', input)
+  } else {
+    Object.entries(input).forEach(([key, value]) => {
+      formData.append(key, value)
+    })
+  }
+  return formData
 }
 
 export function takeJson(input: unknown) {
