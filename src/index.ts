@@ -38,6 +38,12 @@ class Fetchme implements Fetchme {
     }
   }
   
+  debug = false
+  setDebug(to: boolean) {
+    this.debug = to
+    return this
+  }
+  
   apis?: Dictionary<Api> = {}
   
   options: Options = {
@@ -60,7 +66,9 @@ class Fetchme implements Fetchme {
   }
   
   set body(newValue) {
+    if (this.debug) console.log('--- index.ts -> body -> newValue', newValue)
     this._body = pipe(...this.middleware.body)(newValue)
+    if (this.debug) console.log('--- index.ts -> body -> after pipe', this._body)
   }
   
   // TODO Need way to define pipe or compose
