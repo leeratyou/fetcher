@@ -163,11 +163,17 @@ class Fetchme implements Fetchme {
     return this
   }
   
-  upload(file: File) {
+  upload(input: File | Dictionary<any>) {
     const formData = new FormData()
-    formData.append('file', file)
+    if (input instanceof File) {
+      formData.append('file', input)
+    } else {
+      Object.entries(input).forEach(([key, value]) => {
+        formData.append(key, value)
+      })
+    }
+    this.options.headers = {}
     this.options.method = Method.POST
-    delete this.options.headers['Content-Type']
     // @ts-ignore
     this.body = formData
     return this
