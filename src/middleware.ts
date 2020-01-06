@@ -33,6 +33,11 @@ export function takeJson(input: unknown) {
   throw error(NO_RESPONSE)
 }
 
+export function takeBlob(input: unknown) {
+  if (input instanceof Response) return input.blob()
+  throw error(NO_RESPONSE)
+}
+
 export const keyConvert = (converter: Function) => (input: any): any => {
   if (Array.isArray(input)) return input.map(item => keyConvert(converter)(item))
   if (typeof input === 'object') return Object.entries(input).reduce((obj, [key, value]) => ({ ...obj, [converter(key)]: keyConvert(converter)(value) }), {})

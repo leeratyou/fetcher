@@ -15,7 +15,7 @@ import {
   StringFactory,
   success
 } from "./utils";
-import { statusNotOk, stringify, takeJson, keyConvert, toFormData } from "./middleware";
+import { statusNotOk, stringify, takeJson, keyConvert, toFormData, takeBlob } from "./middleware";
 
 interface Fetchme {
   new(apis?: Api | Dictionary<Api>): Fetchme
@@ -200,6 +200,11 @@ class Fetchme implements Fetchme {
   addMiddleware(to: MiddlewareTarget, ...middleware: any[]) {
     // TODO Enum type guard of 'to'
     this.middleware[to].push(...middleware)
+    return this
+  }
+  
+  useMiddleware(on: MiddlewareTarget, middleware: Middleware[]) {
+    this.middleware[on] = middleware
     return this
   }
   
