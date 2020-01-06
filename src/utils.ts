@@ -16,7 +16,7 @@ export enum Method {
 export interface Options {
   method: Method,
   body?: any,
-  headers?: object
+  headers: Dictionary<string>
 }
 
 export interface SuccessResult {

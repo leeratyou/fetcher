@@ -167,6 +167,7 @@ class Fetchme implements Fetchme {
     const formData = new FormData()
     formData.append('file', file)
     this.options.method = Method.POST
+    delete this.options.headers['Content-Type']
     // @ts-ignore
     this.body = formData
     return this
