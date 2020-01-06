@@ -207,7 +207,7 @@ class Fetchme implements Fetchme {
     
     const options = {
       ...this.options,
-      ...this.body
+      body: this.body
     }
     const endpoint = typeof this.endpoint === 'function' ? this.endpoint(...this.arguments) : this.endpoint
     const query = this.query.replace(/&$/, '')
