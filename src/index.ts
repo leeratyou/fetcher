@@ -46,6 +46,7 @@ class Fetchme implements Fetchme {
   
   apis?: Dictionary<Api> = {}
   
+  _tempOptions: any = undefined
   options: Options = {
     method: Method.GET,
     headers: {
@@ -97,6 +98,12 @@ class Fetchme implements Fetchme {
         })
         .catch((e: any) => {
           resolve(pipe(...this.middleware.reject)(e))
+        })
+        .finally(() => {
+          if (this._tempOptions) {
+            this.options = { ...this._tempOptions }
+            this._tempOptions = undefined
+          }
         })
     })
   }
@@ -173,6 +180,7 @@ class Fetchme implements Fetchme {
   }
   
   upload(input: File | Dictionary<any>) {
+    this._tempOptions = { ...this.options }
     this.options.headers = {}
     this.options.method = Method.POST
     this.middleware.body = [toFormData]
