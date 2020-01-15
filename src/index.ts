@@ -1,21 +1,8 @@
 import merge from 'deepmerge'
 import { HAS_SYMBOL, NO_DOMAIN, NO_ENDPOINT, SHOULD_DEFINE_API } from './strings'
-import {
-  Api,
-  Dictionary,
-  EndpointsDictionary,
-  error,
-  isApi, isFetchme,
-  isFullUrl,
-  Method,
-  Middleware,
-  MiddlewareTarget,
-  Options,
-  pipe,
-  StringFactory,
-  success
-} from "./utils";
+import { error, isApi, isFetchme, isFullUrl, pipe, success } from "./utils";
 import { statusNotOk, stringify, takeJson, keyConvert, toFormData, takeBlob } from "./middleware";
+import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory } from "./types"
 
 interface Fetchme {
   new(apis?: Api | Dictionary<Api>): Fetchme
@@ -249,7 +236,7 @@ class Repository {
 export {
   Fetchme,
   Repository,
-  keyConvert
+  statusNotOk, stringify, takeJson, keyConvert, toFormData, takeBlob
 }
 
 export default Fetchme

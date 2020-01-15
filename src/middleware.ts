@@ -1,5 +1,6 @@
-import { NOT_VALID_JSON, NO_RESPONSE } from "./strings";
-import { Dictionary, error } from "./utils";
+import { NOT_VALID_JSON, NO_RESPONSE } from "./strings"
+import { error } from "./utils"
+import { Dictionary } from './types'
 
 export function statusNotOk(response: Response) {
   if (!response.ok) throw error({status: response.status, statusText: response.statusText})

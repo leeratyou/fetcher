@@ -1,30 +1,7 @@
 import { Fetchme } from './index'
-
-export type Dictionary<T> = { [key: string]: T }
-
-export type Partial<T> = { [P in keyof T]?: T[P] }
+import { Api, Dictionary, ErrorResult, Success, SuccessResult, Error } from "./types";
 
 export const pipe = (...fns: any[]) => (value: any) => fns.reduce((prevValue, currentFn) => currentFn(prevValue), value)
-
-export enum Method {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE'
-}
-
-export interface Options {
-  method: Method,
-  body?: any,
-  headers: Dictionary<string>
-}
-
-export interface SuccessResult {
-  success: true
-  data: any
-}
-
-export type Success = (s: any) => SuccessResult
 
 export function isSuccessResult(input: any): input is SuccessResult {
   return input.success === true && input.data
@@ -38,13 +15,6 @@ export const success: Success = s => {
   } as SuccessResult
 }
 
-export interface ErrorResult {
-  success: false
-  data: any
-}
-
-export type Error = (e: any) => ErrorResult
-
 export function isErrorResult(input: any): input is ErrorResult {
   return input.success === false && input.data
 }
@@ -57,43 +27,6 @@ export const error: Error = e => {
   } as ErrorResult
 }
 
-export type StringFactory = (...args: any[]) => string
-export interface EndpointsDictionary extends Dictionary<any>{
-  [key: string]: StringFactory | EndpointsDictionary
-}
-
-export interface Api extends Dictionary<any> {
-  name: string
-  domain: string
-  endpoints: EndpointsDictionary
-}
-
-export enum MiddlewareTarget {
-  response = 'response',
-  body = 'body',
-  resolve = 'resolve',
-  reject = 'reject'
-}
-
-export type Middleware = { [target in MiddlewareTarget]: any[] }
-
-// TODO Under construction
-export type ValidateShape<T, Shape> = T extends Shape
-  ? Exclude<keyof T, keyof Shape> extends never
-    ? T
-    : never
-  : never
-
-// function isType<>
-
-// declare function setApis<T>(apis: ValidateShape<T, Api>): void
-
-// TODO Under construction
-// function isType<T>(input: any): input is T {
-//
-// }
-
-// FIXME Fast but ugly
 export function isApi(input: any): input is Api {
   return (input.name && input.domain && input.endpoints)
 }
