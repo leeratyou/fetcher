@@ -40,7 +40,8 @@ export function takeBlob(input: unknown) {
 }
 
 export const keyConvert = (converter: Function) => (input: any): any => {
+  if (!input) return input
   if (Array.isArray(input)) return input.map(item => keyConvert(converter)(item))
-  if (typeof input === 'object') return Object.entries(input).reduce((obj, [key, value]) => ({ ...obj, [converter(key)]: keyConvert(converter)(value) }), {})
+  if (typeof input === 'object' && input) return Object.entries(input).reduce((obj, [key, value]) => ({ ...obj, [converter(key)]: keyConvert(converter)(value) }), {})
   return input
 }
