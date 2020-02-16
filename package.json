@@ -1,6 +1,6 @@
 {
   "name": "@supersimplethings/fetchme",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "private": false,
   "description": "Polite fetch library",
   "main": "lib/index.js",
