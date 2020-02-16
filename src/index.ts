@@ -166,8 +166,9 @@ class Fetchme implements Fetchme {
     return this
   }
   
-  delete() {
+  delete(body?: Dictionary<any>) {
     this.options.method = Method.DELETE
+    if (body) this.body = body
     return this
   }
   
