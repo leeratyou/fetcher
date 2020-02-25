@@ -1,4 +1,4 @@
-import { Fetchme } from './index'
+import Fetcher from './index'
 import { Api, Dictionary, ErrorResult, Success, SuccessResult, Error } from "./types";
 
 export const pipe = (...fns: any[]) => (value: any) => fns.reduce((prevValue, currentFn) => currentFn(prevValue), value)
@@ -44,6 +44,6 @@ export function isFullUrl(input: unknown): input is string {
   return typeof input === 'string' && /^http/.test(input)
 }
 
-export function isFetchme(input: any): input is Fetchme {
-  return input instanceof Fetchme
+export function isFetchme(input: any): input is Fetcher {
+  return input instanceof Fetcher
 }

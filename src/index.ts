@@ -4,15 +4,11 @@ import { error, isApi, isFullUrl, pipe, success } from './utils'
 import { statusNotOk, stringify, takeJson, toFormData } from './middleware'
 import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory } from './types'
 
-import * as utils from './utils'
-import * as middleware from './middleware'
-import * as types from './types'
-
-export interface Fetchme {
-  new(apis?: Api | Dictionary<Api>): Fetchme
+export interface Fetcher {
+  new(apis?: Api | Dictionary<Api>): Fetcher
 }
 
-export class Fetchme implements Fetchme {
+export class Fetcher implements Fetcher {
   
   constructor(apis?: Api | Dictionary<Api>) {
     // TODO Under construction
@@ -104,7 +100,7 @@ export class Fetchme implements Fetchme {
     })
   }
   
-  private endpointsFactory = (endpoints?: EndpointsDictionary): Fetchme | EndpointsDictionary => {
+  private endpointsFactory = (endpoints?: EndpointsDictionary): Fetcher | EndpointsDictionary => {
     if (this.debug) console.log('--- index.ts -> endpointsFactory -> endpoints', endpoints)
     if (!endpoints) throw error(`${NO_ENDPOINT} with: ${NOTHING}`)
     const that = this
@@ -228,9 +224,4 @@ export class Fetchme implements Fetchme {
   
 }
 
-export default {
-  Fetchme,
-  ...types,
-  ...utils,
-  ...middleware
-}
+export default Fetcher

@@ -1,6 +1,6 @@
 {
-  "name": "@supersimplethings/fetchme",
-  "version": "0.10.1",
+  "name": "@supersimplethings/fetcher",
+  "version": "0.10.2",
   "private": false,
   "description": "Polite fetch library",
   "main": "lib/index.js",
@@ -19,7 +19,7 @@
     "url": "git+https://github.com/leeratyou/fetchme.git"
   },
   "keywords": [
-    "fetchme",
+    "fetcher",
     "fetch",
     "SuperSimpleThings"
   ],
