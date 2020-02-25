@@ -1,14 +1,18 @@
 import merge from 'deepmerge'
 import { HAS_SYMBOL, NO_DOMAIN, NO_ENDPOINT, SHOULD_DEFINE_API, NOTHING } from './strings'
-import { error, isApi, isFetchme, isFullUrl, pipe, success } from "./utils";
-import { statusNotOk, stringify, takeJson, keyConvert, toFormData, takeBlob } from "./middleware";
-import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory } from "./types"
+import { error, isApi, isFullUrl, pipe, success } from './utils'
+import { statusNotOk, stringify, takeJson, toFormData } from './middleware'
+import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory } from './types'
 
-interface Fetchme {
+import * as utils from './utils'
+import * as middleware from './middleware'
+import * as types from './types'
+
+export interface Fetchme {
   new(apis?: Api | Dictionary<Api>): Fetchme
 }
 
-class Fetchme implements Fetchme {
+export class Fetchme implements Fetchme {
   
   constructor(apis?: Api | Dictionary<Api>) {
     // TODO Under construction
@@ -224,12 +228,9 @@ class Fetchme implements Fetchme {
   
 }
 
-export {
-  Fetchme
+export default {
+  Fetchme,
+  ...types,
+  ...utils,
+  ...middleware
 }
-
-export * from './types'
-export * from './middleware'
-export * from './utils'
-
-export default Fetchme
