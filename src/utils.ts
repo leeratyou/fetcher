@@ -1,4 +1,4 @@
-import Fetcher from './index'
+import Fetcher from './fetcher'
 import { Api, Dictionary, ErrorResult, Success, SuccessResult, Error } from "./types";
 
 export const pipe = (...fns: any[]) => (value: any) => fns.reduce((prevValue, currentFn) => currentFn(prevValue), value)
