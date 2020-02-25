@@ -1,5 +1,5 @@
 import merge from 'deepmerge'
-import { HAS_SYMBOL, NO_DOMAIN, NO_ENDPOINT, SHOULD_DEFINE_API } from './strings'
+import { HAS_SYMBOL, NO_DOMAIN, NO_ENDPOINT, SHOULD_DEFINE_API, NOTHING } from './strings'
 import { error, isApi, isFetchme, isFullUrl, pipe, success } from "./utils";
 import { statusNotOk, stringify, takeJson, keyConvert, toFormData, takeBlob } from "./middleware";
 import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory } from "./types"
@@ -101,18 +101,22 @@ class Fetchme implements Fetchme {
   }
   
   private endpointsFactory = (endpoints?: EndpointsDictionary): Fetchme | EndpointsDictionary => {
-    if (!endpoints) throw error(NO_ENDPOINT)
+    if (this.debug) console.log('--- index.ts -> endpointsFactory -> endpoints', endpoints)
+    if (!endpoints) throw error(`${NO_ENDPOINT} with: ${NOTHING}`)
     const that = this
     
     return new Proxy(endpoints, {
       get(target, prop) {
+        if (that.debug) console.log('--- index.ts -> endpointsFactory -> get', target, prop)
         if (typeof prop === 'symbol') throw error(HAS_SYMBOL)
-        if (!target[prop]) throw error(NO_ENDPOINT)
+        if (!target[prop]) throw error(`${NO_ENDPOINT} with: ${prop}`)
         
         if (typeof target[prop] === 'function') {
+          if (that.debug) console.log('--- index.ts -> endpointsFactory -> get StringFactory', target, prop)
           that.endpoint = target[prop] as StringFactory
           return that
         }
+        if (that.debug) console.log('--- index.ts -> endpointsFactory -> get Dive deeper', target, prop)
         if (typeof target[prop] === 'object') return that.endpointsFactory(target[prop] as EndpointsDictionary)
       }
     })
@@ -197,13 +201,6 @@ class Fetchme implements Fetchme {
     return this
   }
   
-  // FIXME Shouldnt be push here
-  addMiddleware(to: MiddlewareTarget, ...middleware: any[]) {
-    // TODO Enum type guard of 'to'
-    this.middleware[to].push(...middleware)
-    return this
-  }
-  
   useMiddleware(on: MiddlewareTarget, middleware: Middleware[]) {
     this.middleware[on] = middleware
     return this
@@ -227,23 +224,12 @@ class Fetchme implements Fetchme {
   
 }
 
-class Repository {
-  
-  constructor(apis: Dictionary<Api>, fetcher: Fetchme | any) {
-    this.apis = apis
-    this.fetcher = isFetchme(fetcher) ? new Fetchme(apis) : fetcher
-  }
-  
-  private apis: Dictionary<Api>
-  
-  private fetcher: Fetchme
+export {
+  Fetchme
 }
 
-export {
-  Fetchme,
-  Repository,
-  success, error,
-  statusNotOk, stringify, takeJson, keyConvert, toFormData, takeBlob
-}
+export * from './types'
+export * from './middleware'
+export * from './utils'
 
 export default Fetchme

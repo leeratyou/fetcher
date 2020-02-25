@@ -40,7 +40,7 @@
     "*.md"
   ],
   "devDependencies": {
-    "typescript": "^3.7.4"
+    "typescript": "^3.8.2"
   },
   "dependencies": {
     "deepmerge": "^4.2.2"
