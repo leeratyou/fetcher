@@ -1,7 +1,7 @@
 import Fetcher from './fetcher'
 import { Api, Dictionary, ErrorResult, Success, SuccessResult, Error } from "./types";
 
-export const pipe = (...fns: any[]) => (value: any) => fns.reduce((prevValue, currentFn) => currentFn(prevValue), value)
+export const pipe = (instance: Fetcher) => (...fns: any[]) => (value: any) => fns.reduce((prevValue, currentFn) => currentFn(prevValue, instance), value)
 
 export function isSuccessResult(input: any): input is SuccessResult {
   return input.success === true && input.data
@@ -44,6 +44,6 @@ export function isFullUrl(input: unknown): input is string {
   return typeof input === 'string' && /^http/.test(input)
 }
 
-export function isFetchme(input: any): input is Fetcher {
+export function isFetcher(input: any): input is Fetcher {
   return input instanceof Fetcher
 }

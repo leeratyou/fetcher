@@ -2,7 +2,7 @@ import merge from 'deepmerge'
 import { HAS_SYMBOL, NO_DOMAIN, NO_ENDPOINT, SHOULD_DEFINE_API, NOTHING } from './strings'
 import { error, isApi, isFullUrl, pipe, success } from './utils'
 import { statusNotOk, stringify, takeJson, toFormData } from './middleware'
-import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory } from './types'
+import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory, FetchObject } from './types'
 
 interface Fetcher {
   new(apis?: Api | Dictionary<Api>): Fetcher
@@ -31,6 +31,7 @@ class Fetcher implements Fetcher {
     return this
   }
   
+  queue: FetchObject[] = []
   apis?: Dictionary<Api> = {}
   
   _tempOptions: any = undefined
@@ -56,7 +57,7 @@ class Fetcher implements Fetcher {
   
   set body(newValue) {
     if (this.debug) console.log('--- index.ts -> set body -> newValue', newValue)
-    this._body = pipe(...this.middleware.body)(newValue)
+    this._body = pipe(this)(...this.middleware.body)(newValue)
     if (this.debug) console.log('--- index.ts -> set body -> after pipe', this._body)
   }
   
@@ -75,21 +76,24 @@ class Fetcher implements Fetcher {
   arguments: Array<string | number> = []
   
   private fetch(url: string, options: any) {
+    this.queue.push({ url, options, that: this })
+    
     return new Promise(resolve => {
       fetch(url, options)
         .then((response: Response) => {
           if (this.debug) console.log('--- index.ts -> fetch -> response', response)
-          return pipe(...this.middleware.response)(response)
+          return pipe(this)(...this.middleware.response)(response)
         })
         .then((json: unknown) => {
           if (this.debug) console.log('--- index.ts -> fetch -> resolve', json)
-          resolve(pipe(...this.middleware.resolve)(json))
+          resolve(pipe(this)(...this.middleware.resolve)(json))
         })
         .catch((e: any) => {
           if (this.debug) console.log('--- index.ts -> fetch -> catch', e)
-          resolve(pipe(...this.middleware.reject)(e))
+          resolve(pipe(this)(...this.middleware.reject)(e))
         })
         .finally(() => {
+          this.queue.pop()
           if (this._tempOptions) {
             if (this.debug) console.log('--- index.ts -> fetch -> _tempOptions', this._tempOptions)
             if (this.debug) console.log('--- index.ts -> fetch -> options', this.options)

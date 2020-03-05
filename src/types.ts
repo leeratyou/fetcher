@@ -17,7 +17,7 @@ export enum Method {
 }
 
 export interface Options {
-  method: Method,
+  method?: Method,
   body?: any,
   headers: Dictionary<string>
 }
@@ -56,3 +56,9 @@ export enum MiddlewareTarget {
 }
 
 export type Middleware = { [target in MiddlewareTarget]: any[] }
+
+export interface FetchObject {
+  that: any
+  url: string
+  options: Options
+}
