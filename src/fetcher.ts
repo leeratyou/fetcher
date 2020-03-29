@@ -77,6 +77,7 @@ class Fetcher implements Fetcher {
   
   private fetch(url: string, options: any) {
     this.queue.push({ url, options, that: this })
+    if (this.debug) console.log('--- index.ts -> fetch -> queue is after push (*be careful coz it\'s seems mutable obj): ', this.queue)
     
     return new Promise(resolve => {
       fetch(url, options)
@@ -94,6 +95,7 @@ class Fetcher implements Fetcher {
         })
         .finally(() => {
           this.queue.pop()
+          if (this.debug) console.log('--- index.ts -> fetch -> queue is: ', this.queue)
           if (this._tempOptions) {
             if (this.debug) console.log('--- index.ts -> fetch -> _tempOptions', this._tempOptions)
             if (this.debug) console.log('--- index.ts -> fetch -> options', this.options)
