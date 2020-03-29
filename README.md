@@ -1,5 +1,5 @@
-# @supersimplethings/fetchme
-![npm (scoped)](https://img.shields.io/npm/v/@supersimplethings/fetchme)
+# @supersimplethings/fetcher
+![npm (scoped)](https://img.shields.io/npm/v/@supersimplethings/fetcher)
 
 > Things should be simple to use
 
@@ -13,7 +13,7 @@ async function getResponse(someArgs) {
     some: someArgs.some,
     args: someArgs.args
   }
-  const response = await fetchme().post(body).to('https://some.site/endpoint').plz()
+  const response = await fetcher().post(body).to('https://some.site/endpoint').plz()
 }
 ```
 
@@ -22,81 +22,72 @@ async function getResponse(someArgs) {
 With [npm](https://npmjs.org/):
 
 ```shell
-npm install @supersimplethings/fetchme
+npm install @supersimplethings/fetcher
 ```
 
 With [yarn](https://yarnpkg.com/en/):
 
 ```shell
-yarn add @supersimplethings/fetchme
+yarn add @supersimplethings/fetcher
 ```
 
 ## Advanced usage
 
 ```javascript
+import { Fetcher, MiddlewareTarget } from '@supersimplethings/fetcher'
+
 const ourApi = {
   name: 'ourApi',
   domain: 'https://some.domain',
   endpoints: {
-    userById: userId => `/users/${userId}`
+    user:{
+      byId: userId => `/users/${userId}`
+    }
   }
 }
 
 const token = 'some_token'
 
-const fetchme = new Fetchme(ourApi)
+const fetcher = new Fetcher(ourApi)
+  .useApi('ourApi')
   .setOptions({ headers: { Authorization: `Bearer: ${token}` }})
-  .addMiddleware('body', someBodyParser)
+  .useMiddleware(MiddlewareTarget.body, someBodyParser)
 
 async function updateUser(someArgs, userId) {
   const body = {
     some: someArgs.some,
     args: someArgs.args
   }
-  const user = await fetchme.put(body).to('ourApi').userById.with(userId).plz()
+  const user = await fetcher.put(body).to().user.byId.with(userId).plz()
 }
 
 ```
 
-## Repository pattern
-```javascript
-import { Fetchme, Repository } from '@supersimplethings/fetchme'
+## Default middleware
+You can override default behaviour with `useMiddleware` method:
 
-class UsersRepository extends Repository {
-  constructor(apis, Fetcher) {
-    super(apis, Fetcher)
-
-    this.apis = apis
-    this.fetcher = new Fetcher(apis)
-      .setOptions({ headers: { Authorization: `Bearer: ${token}` }})
-      .addMiddleware('body', someBodyParser)
-  }
-
-  async createUser(someArgs) {
-    const body = {
-      some: someArgs.some,
-      args: someArgs.args
-    }
-    const response = await this.fetcher.post(body).to().user.create.plz()
-
-    if (!response.success) return []
-    const newUser = someParse(response.data)
-    return newUser
-  }
+```typescript
+useMiddleware(on: MiddlewareTarget, middleware: Middleware[]): Fetcher {
+  this.middleware[on] = middleware
+  return this
 }
 
-const ourApi = {
-  name: 'ourApi',
-  domain: 'https://some.domain',
-  endpoints: {
-    user: {
-      create: () => '/users'
-    }
-  }
+enum MiddlewareTarget {
+  response = 'response',
+  body = 'body',
+  resolve = 'resolve',
+  reject = 'reject'
 }
+```
 
-const usersRepository = new UsersRepository(ourApi, Fetchme)
-
+Defaults are:
+```typescript
+middleware: Middleware = {
+  body: [stringify],
+  response: [statusNotOk, takeJson],
+  resolve: [success],
+  reject: [error],
+}
 ```
 
 ## License
