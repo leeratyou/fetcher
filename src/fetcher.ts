@@ -2,7 +2,7 @@ import merge from 'deepmerge'
 import { HAS_SYMBOL, NO_DOMAIN, NO_ENDPOINT, SHOULD_DEFINE_API, NOTHING } from './strings'
 import { error, isApi, isFullUrl, pipe, success } from './utils'
 import { statusNotOk, stringify, takeJson, toFormData } from './middleware'
-import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory, FetchObject } from './types'
+import { Api, Dictionary, EndpointsDictionary, Method, Middleware, MiddlewareTarget, Options, StringFactory, FetchObject, Provider } from './types'
 
 interface Fetcher {
   new(apis?: Api | Dictionary<Api>): Fetcher
@@ -14,6 +14,7 @@ class Fetcher implements Fetcher {
     // TODO Under construction
     // TODO Need to be able pass string as well
     if (apis) this.setApis(apis)
+    if (!fetch) this.provider = require('node-fetch').default
   }
   
   private setApis(apis: Api | Dictionary<Api>) {
@@ -34,6 +35,7 @@ class Fetcher implements Fetcher {
   queue: FetchObject[] = []
   apis?: Dictionary<Api> = {}
   
+  provider: Provider = fetch
   _tempOptions: any = undefined
   options: Options = {
     method: Method.GET,
@@ -80,7 +82,7 @@ class Fetcher implements Fetcher {
     if (this.debug) console.log('--- index.ts -> fetch -> queue is after push (*be careful coz it\'s seems mutable obj): ', this.queue)
     
     return new Promise(resolve => {
-      fetch(url, options)
+      this.provider(url, options)
         .then((response: Response) => {
           if (this.debug) console.log('--- index.ts -> fetch -> response', response)
           return pipe(this)(...this.middleware.response)(response)
@@ -199,6 +201,11 @@ class Fetcher implements Fetcher {
   
   setOptions(options: Options) {
     this.options = merge(this.options, options)
+    return this
+  }
+  
+  useProvider(provider: Provider) {
+    this.provider = provider
     return this
   }
   

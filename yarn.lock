@@ -2,10 +2,40 @@
 # yarn lockfile v1
 
 
+"@types/node@^13.9.5":
+  version "13.9.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.9.5.tgz#59738bf30b31aea1faa2df7f4a5f55613750cf00"
+  integrity sha512-hkzMMD3xu6BrJpGVLeQ3htQQNAcOrJjX7WFmtK8zWQpz2UJf13LCFF2ALA7c9OVdvc2vQJeDdjfR35M0sBCxvw==
+
+buffer-from@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
+  integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
+
+data-uri-to-buffer@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/data-uri-to-buffer/-/data-uri-to-buffer-3.0.0.tgz#8a3088a5efd3f53c3682343313c6895d498eb8d7"
+  integrity sha512-MJ6mFTZ+nPQO+39ua/ltwNePXrfdF3Ww0wP1Od7EePySXN1cP9XNqRQOG3FxTfipp8jx898LUCgBCEP11Qw/ZQ==
+  dependencies:
+    buffer-from "^1.1.1"
+
 deepmerge@^4.2.2:
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-4.2.2.tgz#44d2ea3679b8f4d4ffba33f03d865fc1e7bf4955"
   integrity sha512-FJ3UgI4gIl+PHZm53knsuSFpE+nESMr7M4v9QcgB7S63Kj/6WqMiFQJpBBYz1Pt+66bZpP3Q7Lye0Oo9MPKEdg==
+
+fetch-blob@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/fetch-blob/-/fetch-blob-1.0.5.tgz#5cc86a8740236c38d8073b153c8b51be5f3dc11e"
+  integrity sha512-BIggzO037jmCrZmtgntzCD2ymEaWgw9OMJsfX7FOS1jXGqKW9FEhETJN8QK4KxzIJknRl3RQdyzz34of+NNTMQ==
+
+node-fetch@^3.0.0-beta.4:
+  version "3.0.0-beta.4"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-3.0.0-beta.4.tgz#f5fcc70e506314c90df4f5f19e81cff55aa1ecea"
+  integrity sha512-NxI746RCCuW5XmvGEOVPMFksmoMFEaWUEhNAGY5VLJ9qmit1mCEfRTHdomZuMe94FuY2QO2DLrWYe70HT7ubqw==
+  dependencies:
+    data-uri-to-buffer "^3.0.0"
+    fetch-blob "^1.0.5"
 
 typescript@^3.8.2:
   version "3.8.2"

@@ -62,3 +62,5 @@ export interface FetchObject {
   url: string
   options: Options
 }
+
+export type Provider = (url: string, options: any) => Promise<Response>
