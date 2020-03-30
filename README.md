@@ -82,11 +82,23 @@ enum MiddlewareTarget {
 
 Defaults are:
 ```typescript
+import { error, success } from './utils'
+import { statusNotOk, stringify, takeJson } from './middleware'
+
 middleware: Middleware = {
   body: [stringify],
   response: [statusNotOk, takeJson],
   resolve: [success],
   reject: [error],
+}
+```
+
+## Server usage
+Fetcher supports server usage through `node-fetch`:
+
+```typescript
+constructor(apis?: Api | Dictionary<Api>) {
+  if (!fetch) this.provider = require('node-fetch').default
 }
 ```
 
