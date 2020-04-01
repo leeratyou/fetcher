@@ -4,7 +4,7 @@
 
 > Things should be simple to use
 
-Polite fetch library.
+Polite fetch library based on modular middleware system.
 
 ## Usage
 
