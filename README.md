@@ -1,5 +1,6 @@
 # @supersimplethings/fetcher
 ![npm (scoped)](https://img.shields.io/npm/v/@supersimplethings/fetcher)
+![npm](https://img.shields.io/npm/dw/@supersimplethings/fetcher)
 
 > Things should be simple to use
 
