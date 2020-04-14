@@ -4,7 +4,7 @@
 
 > Things should be simple to use
 
-Heavly rtped polite fetch library based on modular middleware system.
+Heavily rtped polite fetch library based on modular middleware system.
 
 ## Usage
 
