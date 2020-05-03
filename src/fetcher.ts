@@ -14,7 +14,7 @@ class Fetcher implements Fetcher {
     // TODO Under construction
     // TODO Need to be able pass string as well
     if (apis) this.setApis(apis)
-    if (!fetch) this.provider = require('node-fetch').default
+    // if (!fetch) this.provider = require('node-fetch').default
   }
   
   private setApis(apis: Api | Dictionary<Api>) {
@@ -35,7 +35,7 @@ class Fetcher implements Fetcher {
   queue: FetchObject[] = []
   apis?: Dictionary<Api> = {}
   
-  provider: Provider = window?.fetch.bind(this)
+  // provider: Provider = window?.fetch.bind(this)
   _tempOptions: any = undefined
   options: Options = {
     method: Method.GET,
@@ -82,7 +82,7 @@ class Fetcher implements Fetcher {
     if (this.debug) console.log('--- index.ts -> fetch -> queue is after push (*be careful coz it\'s seems mutable obj): ', this.queue)
     
     return new Promise(resolve => {
-      this.provider(url, options)
+      fetch(url, options)
         .then((response: Response) => {
           if (this.debug) console.log('--- index.ts -> fetch -> response', response)
           return pipe(this)(...this.middleware.response)(response)
