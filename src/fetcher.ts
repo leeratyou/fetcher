@@ -35,7 +35,7 @@ class Fetcher implements Fetcher {
   queue: FetchObject[] = []
   apis?: Dictionary<Api> = {}
   
-  provider: Provider = fetch
+  provider: Provider = window?.fetch.bind(this)
   _tempOptions: any = undefined
   options: Options = {
     method: Method.GET,

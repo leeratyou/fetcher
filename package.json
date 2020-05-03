@@ -31,9 +31,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/leeratyou/fetchme/issues"
+    "url": "https://github.com/leeratyou/fetcher/issues"
   },
-  "homepage": "https://github.com/leeratyou/fetchme#readme",
+  "homepage": "https://github.com/leeratyou/fetcher#readme",
   "files": [
     "lib",
     "src",
