@@ -1,6 +1,6 @@
 {
   "name": "@supersimplethings/fetcher",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "private": false,
   "description": "Polite fetch library",
   "main": "lib/index.js",
