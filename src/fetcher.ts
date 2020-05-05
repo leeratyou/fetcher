@@ -204,10 +204,10 @@ class Fetcher implements Fetcher {
     return this
   }
   
-  useProvider(provider: Provider) {
-    this.provider = provider
-    return this
-  }
+  // useProvider(provider: Provider) {
+  //   this.provider = provider
+  //   return this
+  // }
   
   useApi(to: string) {
     this.mapper(to)
