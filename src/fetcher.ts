@@ -131,9 +131,13 @@ class Fetcher implements Fetcher {
   }
   
   private parser(url: string) {
-    const parsed = new URL(url)
-    this.domain = parsed.origin
-    this.endpoint = parsed.pathname
+    if (this.debug)
+      console.log('--- fetcher.js -> before parser -> url', url)
+    const r = /^(https:\/\/[\w.\-\d]+)([^?]+)(\?.+)*$/
+    this.domain = url.match(r)?.[1]
+    this.endpoint = url.match(r)?.[2]
+    if (this.debug)
+      console.log('--- fetcher.js -> after parser -> match', url.match(r))
   }
   
   private mapper = (api: string | undefined): any => {
